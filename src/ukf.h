@@ -7,6 +7,12 @@
 #include <string>
 #include <fstream>
 
+#ifdef 	DEBUG
+#define UKF_DEBUG(fn, log) std::count << "UKF " << fn << " : " << log << "\n";
+#else
+#define UKF_DEBUG(fn, log)
+#endif
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 

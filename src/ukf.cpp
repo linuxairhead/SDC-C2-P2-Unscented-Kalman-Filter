@@ -63,6 +63,7 @@ UKF::~UKF() {}
  * either radar or laser.
  */
 void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
+  UKF_DEBUG("ProcessMeasurement","Start");
   /**
   TODO:
 
@@ -77,6 +78,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
  * measurement and this one.
  */
 void UKF::Prediction(double delta_t) {
+  UKF_DEBUG("Prediction","Start");
   /**
   TODO:
 
@@ -90,6 +92,7 @@ void UKF::Prediction(double delta_t) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
+  UKF_DEBUG("UpdateLidar","Start");
   /**
   TODO:
 
@@ -105,6 +108,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
  * @param {MeasurementPackage} meas_package
  */
 void UKF::UpdateRadar(MeasurementPackage meas_package) {
+  UKF_DEBUG("UpdateRadar","Start");
   /**
   TODO:
 
