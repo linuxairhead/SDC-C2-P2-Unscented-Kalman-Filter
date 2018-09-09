@@ -12,6 +12,9 @@ using std::vector;
  * This is scaffolding, do not modify
  */
 UKF::UKF() {
+
+  is_initialized_ = true;
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -46,14 +49,15 @@ UKF::UKF() {
   // Radar measurement noise standard deviation radius change in m/s
   std_radrd_ = 0.3;
   //DO NOT MODIFY measurement noise values above these are provided by the sensor manufacturer.
-  
-  /**
-  TODO:
 
-  Complete the initialization. See ukf.h for other member properties.
+  // State dimension
+  n_x_ = x_.size();
 
-  Hint: one or more values initialized above might be wildly off...
-  */
+  // Augmented state dimension
+  n_aug_ = 2 * n_x_ + 1;
+
+  // Sigma point spreading parameter
+  lambda_ = 3 - n_aug_;
 }
 
 UKF::~UKF() {}
