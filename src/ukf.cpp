@@ -54,10 +54,16 @@ UKF::UKF() {
   n_x_ = x_.size();
 
   // Augmented state dimension
-  n_aug_ = 2 * n_x_ + 1;
+  n_aug_ = n_x_ + 2;
+
+  // Number of sigma points
+  n_sig_ = 2 * n_x_ + 1;
 
   // Sigma point spreading parameter
   lambda_ = 3 - n_aug_;
+
+  // Weights of sigma points
+  weights_ = VectorXd(n_sig_);
 }
 
 UKF::~UKF() {}
@@ -66,14 +72,77 @@ UKF::~UKF() {}
  * @param {MeasurementPackage} meas_package The latest measurement data of
  * either radar or laser.
  */
-void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
-  UKF_DEBUG("ProcessMeasurement","Start");
-  /**
-  TODO:
+void UKF::Initialization(MeasurementPackage meas_package) {
+  UKF_DEBUG("Initialization","Start");
 
-  Complete this function! Make sure you switch between lidar and radar
-  measurements.
+  float px; // x position
+  float py; // y position
+  float vx; // x velocity
+  float vy; // y velocity
+  float v;
+
+  /*****************************************************************************
+   *  Initialization
+   ****************************************************************************/
+
+  /**
+    * Initialize the state x_ with the first measurement.
+    * Create the covariance matrix.///////////////
+    * Remember: you'll need to convert radar from polar to cartesian coordinates.
   */
+  // first measurement
+  if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+    UKF_DEBUG("Initialization","RADAR");
+    /**
+    Convert radar from polar to cartesian coordinates and initialize state.
+    */
+    float rho = meas_package.raw_measurements_[0];    // radical distance from origin
+    float theta = meas_package.raw_measurements_[1];  // angle between ro and x axis
+    float rho_dot = meas_package.raw_measurements_[2];// radical velocity 
+
+    px = rho * cos(theta);
+    py = rho * sin(theta);
+    vx = rho_dot * cos(theta);
+    vy = rho_dot * sin(theta);
+    v = sqrt( vx*vx + vy*vy);
+
+  }
+  else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    UKF_DEBUG("Initialization","LASER");
+    /**
+    Initialize state.
+    */
+    px = meas_package.raw_measurements_[0]; // x position
+    py = meas_package.raw_measurements_[1]; // y position
+    v = 0; // since Laser cannot measure velocity, set velocity as zero
+  }
+
+  // initialize x state.
+  x_ << px, py, v, 0, 0;  // x, y, vx, vy
+   
+  // Initialize weights
+  weights_(0) = lambda_ / (lambda_ + n_aug_);
+  for (int i = 1; i < weights_.size(); i++)
+    weights_(i) = 0.5 / (n_aug_ + lambda_);
+
+  time_us_ = meas_package.timestamp_;
+
+  // done initializing, no need to predict or update
+  is_initialized_ = true;
+  return;
+}
+  
+  
+  /**
+ * @param {MeasurementPackage} meas_package The latest measurement data of
+ * either radar or laser.
+ */
+void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
+	
+  if (!is_initialized_) {
+    UKF_DEBUG("ProcessMeasurement","initialization");
+    Initialization(meas_package);
+  } 
 }
 
 /**
