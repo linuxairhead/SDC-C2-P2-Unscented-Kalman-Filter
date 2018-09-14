@@ -142,7 +142,29 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if (!is_initialized_) {
     UKF_DEBUG("ProcessMeasurement","initialization");
     Initialization(meas_package);
-  } 
+    return;
+  }
+
+  UKF_DEBUG("ProcessMeasurement","prediction");
+  float dt = (meas_package.timestamp_ - time_us_) / 1000000.0;	//dt - expressed in seconds
+  time_us_ = meas_package.timestamp_;
+
+  UKF_DEBUG("ProcessMeasurement", dt);
+  Prediction(dt);
+
+
+  UKF_DEBUG("ProcessMeasurement","update");
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+
+    UKF_DEBUG("ProcessMeasurement","update laser");
+    UpdateLidar(meas_package);
+  }
+  else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+
+    UKF_DEBUG("ProcessMeasurement","update radar");
+    UpdateRadar(meas_package);
+   }
+
 }
 
 /**
