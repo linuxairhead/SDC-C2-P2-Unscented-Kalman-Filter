@@ -99,6 +99,12 @@ public:
   void ProcessMeasurement(MeasurementPackage meas_package);
 
   /**
+   * AugmentedSigmaPoint
+   * @param Xsig_out
+   */
+  void  AugmentedSigmaPoints(MatrixXd* Xsig_out);
+
+  /**
    * Prediction Predicts sigma points, the state, and the state covariance
    * matrix
    * @param delta_t Time between k and k+1 in s
