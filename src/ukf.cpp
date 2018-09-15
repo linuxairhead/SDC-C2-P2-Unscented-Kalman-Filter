@@ -64,6 +64,11 @@ UKF::UKF() {
 
   // Weights of sigma points
   weights_ = VectorXd(n_sig_);
+  
+  // Initialize weights
+  weights_(0) = lambda_ / (lambda_ + n_aug_);
+  for (int i = 1; i < weights_.size(); i++)
+    weights_(i) = 0.5 / (n_aug_ + lambda_);
 }
 
 UKF::~UKF() {}
@@ -119,12 +124,8 @@ void UKF::Initialization(MeasurementPackage meas_package) {
 
   // initialize x state.
   x_ << px, py, v, 0, 0;  // x, y, vx, vy
-   
-  // Initialize weights
-  weights_(0) = lambda_ / (lambda_ + n_aug_);
-  for (int i = 1; i < weights_.size(); i++)
-    weights_(i) = 0.5 / (n_aug_ + lambda_);
 
+  // set current time 
   time_us_ = meas_package.timestamp_;
 
   // done initializing, no need to predict or update
@@ -151,7 +152,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
   UKF_DEBUG("ProcessMeasurement", dt);
   Prediction(dt);
-
 
   UKF_DEBUG("ProcessMeasurement","update");
   if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
@@ -281,6 +281,28 @@ void UKF::Prediction(double delta_t) {
   MatrixXd Xsig_aug =  AugmentedSigmaPoints();
   
   SigmaPointPrediction(&Xsig_aug, delta_t);
+  
+  //calculate Mean & Covariance
+
+
+  //predicted state mean
+  x_.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
+    x_ = x_+ weights_(i) * Xsig_pred_.col(i);
+  }
+
+  //predicted state covariance matrix
+  P_.fill(0.0);
+  for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
+
+    // state difference
+    VectorXd x_diff = Xsig_pred_.col(i) - x;
+    //angle normalization
+    while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
+    while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
+
+    P_ = P_ + weights_(i) * x_diff * x_diff.transpose() ;
+  }
 }
 
 /**
