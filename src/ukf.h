@@ -102,7 +102,12 @@ public:
    * AugmentedSigmaPoint
    * @param Xsig_out
    */
-  void  AugmentedSigmaPoints(MatrixXd* Xsig_out);
+  MatrixXd AugmentedSigmaPoints();
+
+  /**
+   * Augmented Sigma Point Prediction
+   */
+  void SigmaPointPrediction(MatrixXd* Xsig_aug, double delta_t);
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance

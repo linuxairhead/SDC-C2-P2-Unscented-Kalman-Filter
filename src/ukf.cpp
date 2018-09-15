@@ -171,16 +171,16 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
  * Generate augmented sigma point
  * @param {MatrixXd} Xsig_out
  */
-void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
+MatrixXd UKF::AugmentedSigmaPoints() {
 
+  //create sigma point matrix
+  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
+  
   //create augmented mean vector
   VectorXd x_aug = VectorXd(7);
 
   //create augmented state covariance
   MatrixXd P_aug = MatrixXd(7, 7);
-
-  //create sigma point matrix
-  MatrixXd Xsig_aug = MatrixXd(n_aug_, 2 * n_aug_ + 1);
 
   //create augmented mean state
   x_aug.head(5) = x_;
@@ -206,10 +206,63 @@ void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
 
   //print result
   std::cout << "Xsig_aug = " << std::endl << Xsig_aug << std::endl;
+  
+  return Xsig_aug;
+}
 
-  //write result
-  *Xsig_out = Xsig_aug;
+/**
+ * Sigma point prediction
+ */
+void UKF::SigmaPointPrediction(MatrixXd* Xsig_aug, double delta_t) {
 
+  MatrixXd Xsig_aug_temp = * Xsig_aug;
+  
+  //predict sigma points
+  for (int i = 0; i< 2*n_aug_+1; i++)
+  {
+    //extract values for better readability
+    double p_x = Xsig_aug_temp(0,i);
+    double p_y = Xsig_aug_temp(1,i);
+    double v = Xsig_aug_temp(2,i);
+    double yaw = Xsig_aug_temp(3,i);
+    double yawd = Xsig_aug_temp(4,i);
+    double nu_a = Xsig_aug_temp(5,i);
+    double nu_yawdd = Xsig_aug_temp(6,i);
+
+    //predicted state values
+    double px_p, py_p;
+
+    //avoid division by zero
+    if (fabs(yawd) > 0.001) {
+        px_p = p_x + v/yawd * ( sin (yaw + yawd*delta_t) - sin(yaw));
+        py_p = p_y + v/yawd * ( cos(yaw) - cos(yaw+yawd*delta_t) );
+    }
+    else {
+        px_p = p_x + v*delta_t*cos(yaw);
+        py_p = p_y + v*delta_t*sin(yaw);
+    }
+
+    double v_p = v;
+    double yaw_p = yaw + yawd*delta_t;
+    double yawd_p = yawd;
+
+    //add noise
+    px_p = px_p + 0.5*nu_a*delta_t*delta_t * cos(yaw);
+    py_p = py_p + 0.5*nu_a*delta_t*delta_t * sin(yaw);
+    v_p = v_p + nu_a*delta_t;
+
+    yaw_p = yaw_p + 0.5*nu_yawdd*delta_t*delta_t;
+    yawd_p = yawd_p + nu_yawdd*delta_t;
+
+    //write predicted sigma point into right column
+    Xsig_pred_(0,i) = px_p;
+    Xsig_pred_(1,i) = py_p;
+    Xsig_pred_(2,i) = v_p;
+    Xsig_pred_(3,i) = yaw_p;
+    Xsig_pred_(4,i) = yawd_p;
+  }
+  //print result
+  std::cout << "Xsig_pred_ = " << std::endl << Xsig_pred_ << std::endl;
 }
 
 /**
@@ -219,12 +272,15 @@ void UKF::AugmentedSigmaPoints(MatrixXd* Xsig_out) {
  */
 void UKF::Prediction(double delta_t) {
   UKF_DEBUG("Prediction","Start");
-  /**
-  TODO:
 
+  /**
   Complete this function! Estimate the object's location. Modify the state
   vector, x_. Predict sigma points, the state, and the state covariance matrix.
   */
+  //create sigma point matrix
+  MatrixXd Xsig_aug =  AugmentedSigmaPoints();
+  
+  SigmaPointPrediction(&Xsig_aug, delta_t);
 }
 
 /**
