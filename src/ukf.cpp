@@ -294,7 +294,7 @@ void UKF::Prediction(double delta_t) {
   for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
 
     // state difference
-    VectorXd x_diff = Xsig_pred_.col(i) - x;
+    VectorXd x_diff = Xsig_pred_.col(i) - x_;
     //angle normalization
     while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
     while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
@@ -339,14 +339,14 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
  * Updates the state and the state covariance matrix
  * @param {MeasurementPackage} meas_package
  */
-void UKF::UpdateState(VectorXd* x_out, MatrixXd* P_out) {
+void UKF::UpdateState(int n_z, VectorXd z_pred, VectorXd z, MatrixXd Zsig, MatrixXd S) {
 
   //create matrix for cross correlation Tc
-  MatrixXd Tc = MatrixXd(n_x, n_z);
+  MatrixXd Tc = MatrixXd(n_x_, n_z);
 
   //calculate cross correlation matrix
   Tc.fill(0.0);
-  for (int i = 0; i < 2 * n_aug + 1; i++) {  //2n+1 simga points
+  for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //2n+1 simga points
 
     //residual
     VectorXd z_diff = Zsig.col(i) - z_pred;
@@ -355,12 +355,12 @@ void UKF::UpdateState(VectorXd* x_out, MatrixXd* P_out) {
     while (z_diff(1)<-M_PI) z_diff(1)+=2.*M_PI;
 
     // state difference
-    VectorXd x_diff = Xsig_pred.col(i) - x;
+    VectorXd x_diff = Xsig_pred_.col(i) - x_;
     //angle normalization
     while (x_diff(3)> M_PI) x_diff(3)-=2.*M_PI;
     while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
 
-    Tc = Tc + weights(i) * x_diff * z_diff.transpose();
+    Tc = Tc + weights_(i) * x_diff * z_diff.transpose();
   }
 
   //Kalman gain K;
@@ -379,5 +379,5 @@ void UKF::UpdateState(VectorXd* x_out, MatrixXd* P_out) {
 
   //print result
   std::cout << "Updated state x: " << std::endl << x_ << std::endl;
-  std::cout << "Updated state covariance P: " << std::endl_ << P << std::endl;
+  std::cout << "Updated state covariance P: " << std::endl << P_ << std::endl;
 }

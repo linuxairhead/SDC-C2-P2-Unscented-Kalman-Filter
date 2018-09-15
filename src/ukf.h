@@ -132,7 +132,7 @@ public:
    * Updates the state and the state covariance 
    * @param meas_package The measurement at k+1
    */
-  void UpdateState(VectorXd* x_out, MatrixXd* P_out);
+  void UpdateState(int n_z, VectorXd z_pred, VectorXd z, MatrixXd Zsig, MatrixXd S);
 };
 
 #endif /* UKF_H */
