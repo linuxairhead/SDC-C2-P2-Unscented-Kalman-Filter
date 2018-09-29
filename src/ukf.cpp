@@ -131,10 +131,10 @@ void UKF::Initialization(MeasurementPackage meas_package) {
 
   // init covariance matrix
   P_ << 0.15,    0, 0, 0, 0,
-               0, 0.15, 0, 0, 0,
-               0,    0, 1, 0, 0,
-               0,    0, 0, 1, 0,
-               0,    0, 0, 0, 1;  
+        0, 0.15, 0, 0, 0,
+        0,    0, 1, 0, 0,
+        0,    0, 0, 1, 0,
+        0,    0, 0, 0, 1;  
   
   // set current time 
   time_us_ = meas_package.timestamp_;
@@ -198,7 +198,7 @@ MatrixXd UKF::AugmentedSigmaPoints() {
   MatrixXd P_aug = MatrixXd(7, 7);
 
   //create augmented mean state
-  x_aug.head(5) = x_;
+  x_aug.head(5) = x_;t reset --hard origin/master
   x_aug(5) = 0;
   x_aug(6) = 0;
 
@@ -220,6 +220,7 @@ MatrixXd UKF::AugmentedSigmaPoints() {
   }
 
   //print result
+  UKF_DEBUG("Xsig_aug", Xsig_aug
   std::cout << "Xsig_aug = " << std::endl << Xsig_aug << std::endl;
   
   return Xsig_aug;
