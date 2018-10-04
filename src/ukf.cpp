@@ -130,7 +130,7 @@ void UKF::Initialization(MeasurementPackage meas_package) {
   x_ << px, py, v, 0, 0;  // x, y, vx, vy
 
   // init covariance matrix
-  P_ << 0.15,    0, 0, 0, 0,
+  P_ << 0.15, 0, 0, 0, 0,
         0, 0.15, 0, 0, 0,
         0,    0, 1, 0, 0,
         0,    0, 0, 1, 0,
@@ -198,7 +198,7 @@ MatrixXd UKF::AugmentedSigmaPoints() {
   MatrixXd P_aug = MatrixXd(7, 7);
 
   //create augmented mean state
-  x_aug.head(5) = x_;t reset --hard origin/master
+  x_aug.head(5) = x_;
   x_aug(5) = 0;
   x_aug(6) = 0;
 
@@ -220,7 +220,6 @@ MatrixXd UKF::AugmentedSigmaPoints() {
   }
 
   //print result
-  UKF_DEBUG("Xsig_aug", Xsig_aug
   std::cout << "Xsig_aug = " << std::endl << Xsig_aug << std::endl;
   
   return Xsig_aug;
@@ -247,13 +246,13 @@ void UKF::SigmaPointPrediction(MatrixXd* Xsig_aug, double delta_t) {
     double nu_a = Xsig_aug_temp(5,i);
     double nu_yawdd = Xsig_aug_temp(6,i);
 
-    std::cout << "p_x = " << p_x << std::endl;
-    std::cout << "p_y = " << p_y << std::endl;
-    std::cout << "v = " << v << std::endl;
-    std::cout << "yaw = " << yaw << std::endl;
-    std::cout << "yawd = " << yawd << std::endl;
-    std::cout << "nu_a = " << nu_a << std::endl;
-    std::cout << "nu_yawdd = " << nu_yawdd << std::endl;
+    //std::cout << "p_x = " << p_x << std::endl;
+    //std::cout << "p_y = " << p_y << std::endl;
+    //std::cout << "v = " << v << std::endl;
+    //std::cout << "yaw = " << yaw << std::endl;
+    //std::cout << "yawd = " << yawd << std::endl;
+    //std::cout << "nu_a = " << nu_a << std::endl;
+    //std::cout << "nu_yawdd = " << nu_yawdd << std::endl;
     
     //predicted state values
     double px_p, py_p;
@@ -268,8 +267,8 @@ void UKF::SigmaPointPrediction(MatrixXd* Xsig_aug, double delta_t) {
         py_p = p_y + v*delta_t*sin(yaw);
     }
 
-    std::cout << "px_p = " << px_p << std::endl;
-    std::cout << "py_p = "<< py_p << std::endl;
+    //std::cout << "px_p = " << px_p << std::endl;
+    //std::cout << "py_p = "<< py_p << std::endl;
     
     double v_p = v;
     double yaw_p = yaw + yawd*delta_t;
@@ -283,8 +282,8 @@ void UKF::SigmaPointPrediction(MatrixXd* Xsig_aug, double delta_t) {
     yaw_p = yaw_p + 0.5*nu_yawdd*delta_t*delta_t;
     yawd_p = yawd_p + nu_yawdd*delta_t;
 
-    std::cout << "yaw_p = " << yaw_p << std::endl;
-    std::cout << "yawd_p = "<< yawd_p << std::endl;
+    //std::cout << "yaw_p = " << yaw_p << std::endl;
+    //std::cout << "yawd_p = "<< yawd_p << std::endl;
     
     //write predicted sigma point into right column
     Xsig_pred_(0,i) = px_p;
@@ -322,10 +321,10 @@ void UKF::Prediction(double delta_t) {
   x_.fill(0.0);
   for (int i = 0; i < 2 * n_aug_ + 1; i++) {  //iterate over sigma points
     x_ = x_+ weights_(i) * Xsig_pred_.col(i);
-    std::cout << "x_ = " << x_ << std::endl;
-    std::cout << "weights_ = " <<  weights_(i)  << std::endl;
-    std::cout << "Xsig_pred_.col = " << Xsig_pred_.col(i) << std::endl;
-    std::cout << "count " << i << std::endl;
+    //std::cout << "x_ = " << x_ << std::endl;
+    //std::cout << "weights_ = " <<  weights_(i)  << std::endl;
+    //std::cout << "Xsig_pred_.col = " << Xsig_pred_.col(i) << std::endl;
+    //std::cout << "count " << i << std::endl;
   }
   UKF_DEBUG("Prediction","predicted state mean Done");
   
@@ -337,24 +336,24 @@ void UKF::Prediction(double delta_t) {
     // state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
     
-    std::cout << "x_diff(3) = " << x_diff(3) << std::endl;    
-    std::cout << "x_ = " << x_ << std::endl;
-    std::cout << "weights_ = " <<  weights_(i)  << std::endl;
-    std::cout << "Xsig_pred_.col = " << Xsig_pred_.col(i) << std::endl;
-    std::cout << "before while loop " << i << std::endl;    
+    //std::cout << "x_diff(3) = " << x_diff(3) << std::endl;    
+    //std::cout << "x_ = " << x_ << std::endl;
+    //std::cout << "weights_ = " <<  weights_(i)  << std::endl;
+    //std::cout << "Xsig_pred_.col = " << Xsig_pred_.col(i) << std::endl;
+    //std::cout << "before while loop " << i << std::endl;    
     //angle normalization
     while (x_diff(3)> M_PI) { 
       x_diff(3)-=2.*M_PI;
-      std::cout << i << " first count while loop " <<  x_diff(3) << std::endl;    
+      //std::cout << i << " first count while loop " <<  x_diff(3) << std::endl;    
     }
  
     while (x_diff(3)<-M_PI) {
       x_diff(3)+=2.*M_PI;
-      std::cout << "second while loop " << i << std::endl;   
+      //std::cout << "second while loop " << i << std::endl;   
     }
     
     P_ = P_ + weights_(i) * x_diff * x_diff.transpose() ;
-    std::cout << "count " << i << std::endl;    
+    //std::cout << "count " << i << std::endl;    
   }
   UKF_DEBUG("Prediction","state covariance matrix Done");
   //print result

@@ -1,7 +1,7 @@
 #ifndef TOOLS_H_
 #define TOOLS_H_
 
-#define DEBUG 1
+//#define DEBUG 1
 
 #include <vector>
 #include "Eigen/Dense"

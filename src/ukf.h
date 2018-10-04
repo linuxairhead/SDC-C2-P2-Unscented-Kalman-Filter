@@ -7,11 +7,11 @@
 #include <string>
 #include <fstream>
 
-//#ifdef 	DEBUG
+#ifdef 	DEBUG
 #define UKF_DEBUG(fn, log) std::cout << fn << " : " << log << "\n";
-//#else
-//#define UKF_DEBUG(fn, log)
-//#endif
+#else
+#define UKF_DEBUG(fn, log)
+#endif
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
